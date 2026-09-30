@@ -7,7 +7,6 @@ wing_span = 30.0                    # m, b
 [aircraft.limits]
 max_load_factor = 8.0               # scale factor of g
 min_load_factor = -3.0              # scale factor of g
-gamma_rate_damping = 0.05           # % of gamma_{k-1}
 
 [aircraft.aerodynamics]
 cl_0= 0.28                          # lift coefficient at zero angle of attack

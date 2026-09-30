@@ -6,7 +6,6 @@ use std::f64::consts::PI;
 struct Limits {
     max_load_factor: f64, // scale factor of g
     min_load_factor: f64, // scale factor of g
-    gamma_rate_damping: f64,
 }
 
 #[derive(Deserialize, Clone, Copy)]
