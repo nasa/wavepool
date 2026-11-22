@@ -30,10 +30,8 @@
             rust-analyzer
             cargo-watch
             cargo-edit
-            pkgs.nixfmt
+            nixfmt
             cmake
-            libvterm
-            glib
           ];
         };
 
