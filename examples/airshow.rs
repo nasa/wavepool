@@ -31,7 +31,7 @@ fn main() -> Result<()> {
     while state.altitude() > hard_deck && state.time < t_f {
         // let mut alpha = 10.3_f64.to_radians(); // for 10.6 m/s tailwind
         let mut alpha = 2.0_f64.to_radians(); // for no tailwind
-        alpha = alpha.min(0.44).max(-0.12);
+        // alpha = alpha.min(0.44).max(-0.12);
 
         let action = FlightAction::new(alpha);
 

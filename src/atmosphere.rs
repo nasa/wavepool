@@ -461,7 +461,7 @@ impl AtmosphericGravityWaveField {
 
         // 5. Horizontal wind perturbation
         let l_over_k = (l / k).min(self.max_l_over_k);
-        let n_over_k = (n / k).min(self.max_l_over_k);
+        let n_over_k = (n / (k * u_eff)).min(self.max_l_over_k);
 
         let (u_pert, w_pert) = if x_prime < 0.0 {
             // Windward side – slow‑to‑zero (negative sign)

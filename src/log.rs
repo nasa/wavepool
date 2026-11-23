@@ -2,11 +2,10 @@ use crate::telemetry::{Channel, FlightTelemetry, PhysicsTelemetry, WeatherTeleme
 use chrono::Local;
 use std::{
     fs,
-    path::Path,
-    // time::{SystemTime, UNIX_EPOCH},
+    path::Path
 };
 
-const CHUNK_SIZE: usize = 128 * 1024 * 1024;
+const CHUNK_SIZE: usize = 100 * 60 * 60 * 10; // at 0.01s of dt, 10 hrs of sim time logged per chunk
 
 pub struct FlightRecorder {
     flight_tlm_channel: Channel<FlightTelemetry>,
@@ -16,16 +15,6 @@ pub struct FlightRecorder {
 
 impl FlightRecorder {
     pub fn new() -> Self {
-        /*
-        let base_path = format!(
-            "tlm/{}",
-            SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .unwrap()
-                .as_secs()
-        );
-        */
-
         let base_path = format!("tlm/{}", Local::now().format("%Y-%m-%dT%H%M")); // user readable, e.g., 2025-07-08T1307
 
         fs::create_dir_all(Path::new(&base_path)).unwrap();
@@ -35,7 +24,7 @@ impl FlightRecorder {
         let weather_tlm_tag = format!("{}/weather", base_path);
 
         Self {
-            flight_tlm_channel: Channel::<FlightTelemetry>::new(flt_tlm_tag, CHUNK_SIZE), // aiming for 128MB file size
+            flight_tlm_channel: Channel::<FlightTelemetry>::new(flt_tlm_tag, CHUNK_SIZE),
             physics_tlm_channel: Channel::<PhysicsTelemetry>::new(phys_tlm_tag, CHUNK_SIZE),
             weather_tlm_channel: Channel::<WeatherTelemetry>::new(weather_tlm_tag, CHUNK_SIZE),
         }
