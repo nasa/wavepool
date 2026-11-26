@@ -30,8 +30,6 @@
             rust-analyzer
             cargo-watch
             cargo-edit
-            nixfmt
-            cmake
           ];
         };
 
