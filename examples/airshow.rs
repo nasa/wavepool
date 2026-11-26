@@ -22,22 +22,21 @@ fn main() -> Result<()> {
     // logging
     let mut black_box = FlightRecorder::new();
 
-    black_box.log(Telemetry::from(state, &sortie.dynamics, &sortie.domain.planet.atmosphere));
+    // let mut alpha = 10.3_f64.to_radians(); // for 10.6 m/s tailwind
+    let alpha = 2.0_f64.to_radians(); // for no tailwind
+
+    black_box.log(Telemetry::from(state, sortie.wind(), &sortie.dynamics, &sortie.domain.planet.atmosphere, alpha));
 
     let hard_deck = 10000.0; // m
 
     while state.altitude() > hard_deck && state.time < t_f {
-        // let mut alpha = 10.3_f64.to_radians(); // for 10.6 m/s tailwind
-        let mut alpha = 2.0_f64.to_radians(); // for no tailwind
-        // alpha = alpha.min(0.44).max(-0.12);
-
         let action = FlightAction::new(alpha);
 
         sortie.step_forward(dt, action);
         state = sortie.state;
 
         // save state
-        black_box.log(Telemetry::from(state, &sortie.dynamics, &sortie.domain.planet.atmosphere));
+        black_box.log(Telemetry::from(state, sortie.wind(), &sortie.dynamics, &sortie.domain.planet.atmosphere, alpha));
     }
 
     black_box.shutdown();

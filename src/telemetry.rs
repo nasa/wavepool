@@ -1,6 +1,7 @@
 use std::sync::atomic::AtomicUsize;
 
 use crate::atmosphere::Atmosphere;
+use nalgebra::Vector3;
 use crate::dynamics::{FlightDynamics, FlightState};
 use polars::prelude::*;
 
@@ -20,6 +21,12 @@ pub struct Telemetry {
     v_x: f64,
     v_y: f64,
     v_z: f64,
+    alpha: f64, // angle of attack, rad
+    airspeed: f64,
+    wind_x: f64,
+    wind_y: f64,
+    wind_z: f64,
+    distance: f64, // distance from origin, m
     pe: f64, // potential energy, PE
     ke: f64, // kinetic energy, KE
     ma: f64, // mach number, Ma
@@ -27,7 +34,15 @@ pub struct Telemetry {
 }
 
 impl Telemetry {
-    pub fn from(state: FlightState, dynamics: &FlightDynamics, atmosphere: &Atmosphere) -> Self {
+    pub fn from(
+        state: FlightState,
+        wind: Vector3<f64>,
+        dynamics: &FlightDynamics,
+        atmosphere: &Atmosphere,
+        alpha: f64,
+    ) -> Self {
+        let v_air = state.velocity - wind;
+        let airspeed = v_air.norm();
         Self {
             time: state.time,
             gamma: state.gamma(),
@@ -37,9 +52,15 @@ impl Telemetry {
             v_x: state.velocity.x,
             v_y: state.velocity.y,
             v_z: state.velocity.z,
+            alpha,
+            airspeed,
+            wind_x: wind.x,
+            wind_y: wind.y,
+            wind_z: wind.z,
+            distance: state.distance(),
             pe: dynamics.potential_energy(state.altitude()),
-            ke: dynamics.kinetic_energy(state.velocity.magnitude()),
-            ma: dynamics.mach(state.velocity.magnitude()),
+            ke: dynamics.kinetic_energy(airspeed),
+            ma: dynamics.mach(airspeed),
             air_temp: atmosphere.air_temperature(state.altitude()),
         }
     }
@@ -55,6 +76,12 @@ impl Frameable for Telemetry {
         let v_x: Vec<f64> = data.iter().map(|d| d.v_x).collect();
         let v_y: Vec<f64> = data.iter().map(|d| d.v_y).collect();
         let v_z: Vec<f64> = data.iter().map(|d| d.v_z).collect();
+        let alpha: Vec<f64> = data.iter().map(|d| d.alpha).collect();
+        let airspeed: Vec<f64> = data.iter().map(|d| d.airspeed).collect();
+        let wind_x: Vec<f64> = data.iter().map(|d| d.wind_x).collect();
+        let wind_y: Vec<f64> = data.iter().map(|d| d.wind_y).collect();
+        let wind_z: Vec<f64> = data.iter().map(|d| d.wind_z).collect();
+        let distance: Vec<f64> = data.iter().map(|d| d.distance).collect();
         let pe: Vec<f64> = data.iter().map(|d| d.pe).collect();
         let ke: Vec<f64> = data.iter().map(|d| d.ke).collect();
         let ma: Vec<f64> = data.iter().map(|d| d.ma).collect();
@@ -69,6 +96,12 @@ impl Frameable for Telemetry {
             "v_x" => v_x,
             "v_y" => v_y,
             "v_z" => v_z,
+            "alpha" => alpha,
+            "airspeed" => airspeed,
+            "wind_x" => wind_x,
+            "wind_y" => wind_y,
+            "wind_z" => wind_z,
+            "distance" => distance,
             "pe" => pe,
             "ke" => ke,
             "ma" => ma,

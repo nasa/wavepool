@@ -91,7 +91,11 @@ impl Sortie {
         self.clk.increment(dt);
     }
 
+    pub fn wind(&self) -> Vector3<f64> {
+        self.wind.wind_vector_at(self.state.position, self.clk.now(), -60.0)
+    }
+
     pub fn observe(&self) -> FlightObservation {
-       FlightObservation::from_state(self.initial_state, self.state, self.wind.wind_vector_at(self.state.position, self.clk.now(), -60.0))
+       FlightObservation::from_state(self.initial_state, self.state, self.wind())
     }
 }

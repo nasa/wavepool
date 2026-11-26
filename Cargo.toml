@@ -1,6 +1,6 @@
 [package]
 name = "wavepool"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 authors = ["Jean-Pierre de la Croix <Jean-Pierre.de.la.Croix@jpl.nasa.gov>"]
 description = "A wave soaring simulator for Mars"
