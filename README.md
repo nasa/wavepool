@@ -28,7 +28,7 @@ Build it: `docker build -t wavepool:dev .` (or call it something other than `wav
 
 Run it: `docker run -u $(id -u):$(id -g) -v "$(pwd)/tlm:/app/tlm" -t wavepool:dev` (make sure `wavepool:dev` matches your name and tag of the image; also, this make sure that telemetry is written to the `tlm/` directory locally with your user's permissions)
 
-An example configuration file is located in `config/`, and the output telemetry channels are written to `tlm/YYYY-MM-DDTHHMM` (for example, `tlm/2025-08-19T1028/`) in [Parquet](https://parquet.apache.org) format.
+An example configuration file is located in `config/`, and the output telemetry is written to a single unified parquet file in `tlm/YYYY-MM-DDTHHMM` (for example, `tlm/2025-08-19T1028/`) in [Parquet](https://parquet.apache.org) format.
 
 ## Configuration
 

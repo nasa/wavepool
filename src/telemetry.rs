@@ -11,30 +11,54 @@ pub trait Frameable {
 }
 
 #[derive(Debug, Clone)]
-pub struct FlightTelemetry {
+pub struct Telemetry {
     time: f64,
-    state: FlightState,
+    gamma: f64,
+    x: f64,
+    y: f64,
+    z: f64,
+    v_x: f64,
+    v_y: f64,
+    v_z: f64,
+    pe: f64, // potential energy, PE
+    ke: f64, // kinetic energy, KE
+    ma: f64, // mach number, Ma
+    air_temp: f64,
 }
 
-impl FlightTelemetry {
-    pub fn from(state: FlightState) -> Self {
+impl Telemetry {
+    pub fn from(state: FlightState, dynamics: &FlightDynamics, atmosphere: &Atmosphere) -> Self {
         Self {
             time: state.time,
-            state: state,
+            gamma: state.gamma(),
+            x: state.position.x,
+            y: state.position.y,
+            z: state.position.z,
+            v_x: state.velocity.x,
+            v_y: state.velocity.y,
+            v_z: state.velocity.z,
+            pe: dynamics.potential_energy(state.altitude()),
+            ke: dynamics.kinetic_energy(state.velocity.magnitude()),
+            ma: dynamics.mach(state.velocity.magnitude()),
+            air_temp: atmosphere.air_temperature(state.altitude()),
         }
     }
 }
 
-impl Frameable for FlightTelemetry {
+impl Frameable for Telemetry {
     fn to_dataframe(data: &[Self]) -> DataFrame {
         let time: Vec<f64> = data.iter().map(|d| d.time).collect();
-        let gamma: Vec<f64> = data.iter().map(|d| d.state.gamma()).collect();
-        let x: Vec<f64> = data.iter().map(|d| d.state.position.x).collect();
-        let y: Vec<f64> = data.iter().map(|d| d.state.position.y).collect();
-        let z: Vec<f64> = data.iter().map(|d| d.state.position.z).collect();
-        let v_x: Vec<f64> = data.iter().map(|d| d.state.velocity.x).collect();
-        let v_y: Vec<f64> = data.iter().map(|d| d.state.velocity.y).collect();
-        let v_z: Vec<f64> = data.iter().map(|d| d.state.velocity.z).collect();
+        let gamma: Vec<f64> = data.iter().map(|d| d.gamma).collect();
+        let x: Vec<f64> = data.iter().map(|d| d.x).collect();
+        let y: Vec<f64> = data.iter().map(|d| d.y).collect();
+        let z: Vec<f64> = data.iter().map(|d| d.z).collect();
+        let v_x: Vec<f64> = data.iter().map(|d| d.v_x).collect();
+        let v_y: Vec<f64> = data.iter().map(|d| d.v_y).collect();
+        let v_z: Vec<f64> = data.iter().map(|d| d.v_z).collect();
+        let pe: Vec<f64> = data.iter().map(|d| d.pe).collect();
+        let ke: Vec<f64> = data.iter().map(|d| d.ke).collect();
+        let ma: Vec<f64> = data.iter().map(|d| d.ma).collect();
+        let air_temp: Vec<f64> = data.iter().map(|d| d.air_temp).collect();
 
         df! {
             "time" => time,
@@ -44,70 +68,10 @@ impl Frameable for FlightTelemetry {
             "z" => z,
             "v_x" => v_x,
             "v_y" => v_y,
-            "v_z" => v_z
-        }
-        .unwrap()
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct PhysicsTelemetry {
-    time: f64,
-    pe: f64, // potential energy, PE
-    ke: f64, // kinetic energy, KE
-    ma: f64, // mach number, Ma
-}
-
-impl PhysicsTelemetry {
-    pub fn from(state: FlightState, dynamics: &FlightDynamics) -> Self {
-        Self {
-            time: state.time,
-            pe: dynamics.potential_energy(state.altitude()),
-            ke: dynamics.kinetic_energy(state.velocity.magnitude()),
-            ma: dynamics.mach(state.velocity.magnitude()),
-        }
-    }
-}
-
-impl Frameable for PhysicsTelemetry {
-    fn to_dataframe(data: &[Self]) -> DataFrame {
-        let time: Vec<f64> = data.iter().map(|d| d.time).collect();
-        let pe: Vec<f64> = data.iter().map(|d| d.pe).collect();
-        let ke: Vec<f64> = data.iter().map(|d| d.ke).collect();
-        let ma: Vec<f64> = data.iter().map(|d| d.ma).collect();
-
-        df! {
-            "time" => time,
+            "v_z" => v_z,
             "pe" => pe,
             "ke" => ke,
-            "ma" => ma
-        }
-        .unwrap()
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct WeatherTelemetry {
-    time: f64,
-    air_temp: f64,
-}
-
-impl WeatherTelemetry {
-    pub fn from(state: FlightState, atmosphere: &Atmosphere) -> Self {
-        Self {
-            time: state.time,
-            air_temp: atmosphere.air_temperature(state.altitude()),
-        }
-    }
-}
-
-impl Frameable for WeatherTelemetry {
-    fn to_dataframe(data: &[Self]) -> DataFrame {
-        let time: Vec<f64> = data.iter().map(|d| d.time).collect();
-        let air_temp: Vec<f64> = data.iter().map(|d| d.air_temp).collect();
-
-        df! {
-            "time" => time,
+            "ma" => ma,
             "air_temp" => air_temp,
         }
         .unwrap()

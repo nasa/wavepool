@@ -3,7 +3,7 @@ use std::path::Path;
 use wavepool::log::FlightRecorder;
 use wavepool::controls::FlightAction;
 use wavepool::simulation::{InitialConditions, Sortie};
-use wavepool::telemetry::{FlightTelemetry, PhysicsTelemetry, WeatherTelemetry};
+use wavepool::telemetry::Telemetry;
 use wavepool::time::Benchmark;
 
 fn main() -> Result<()> {
@@ -22,9 +22,7 @@ fn main() -> Result<()> {
     // logging
     let mut black_box = FlightRecorder::new();
 
-    black_box.log_flight_data(FlightTelemetry::from(state));
-    black_box.log_physics_data(PhysicsTelemetry::from(state, &sortie.dynamics));
-    black_box.log_weather_data(WeatherTelemetry::from(state, &sortie.domain.planet.atmosphere));
+    black_box.log(Telemetry::from(state, &sortie.dynamics, &sortie.domain.planet.atmosphere));
 
     let hard_deck = 10000.0; // m
 
@@ -39,9 +37,7 @@ fn main() -> Result<()> {
         state = sortie.state;
 
         // save state
-        black_box.log_flight_data(FlightTelemetry::from(state));
-        black_box.log_physics_data(PhysicsTelemetry::from(state, &sortie.dynamics));
-        black_box.log_weather_data(WeatherTelemetry::from(state, &sortie.domain.planet.atmosphere));
+        black_box.log(Telemetry::from(state, &sortie.dynamics, &sortie.domain.planet.atmosphere));
     }
 
     black_box.shutdown();
